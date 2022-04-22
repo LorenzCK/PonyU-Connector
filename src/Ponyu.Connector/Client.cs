@@ -14,11 +14,16 @@ namespace Ponyu.Connector
     {
         private readonly HttpClient _http;
         private readonly Settings _settings;
-        private readonly ILogger<Client> _logger;
+        private readonly ILogger<Client>? _logger;
 
+        /// <summary>
+        /// Create a new PonyU client.
+        /// </summary>
+        /// <param name="settings">Settings to use in this client instance.</param>
+        /// <param name="logger">Optional logger.</param>
         public Client(
             Settings settings,
-            ILogger<Client> logger
+            ILogger<Client>? logger = null
         )
         {
             _settings = settings;
@@ -34,6 +39,8 @@ namespace Ponyu.Connector
             {
                 _http.Timeout = _settings.HttpTimeout.Value;
             }
+
+            _logger?.LogInformation("PonyU connector initialized");
         }
 
         public async Task<ZoneResponse[]> GetZonesAsync(Coordinate coordinate, CancellationToken cancellationToken = default)
@@ -53,16 +60,16 @@ namespace Ponyu.Connector
             [System.Runtime.CompilerServices.CallerMemberName] string memberName = ""
         )
         {
-            _logger.LogDebug("Performing HTTP request to {0}", fullUri);
+            _logger?.LogDebug("Performing HTTP request to {0}", fullUri);
 
             var result = await _http.GetFromJsonAsync<T>(fullUri, cancellationToken);
             if (result == null)
             {
-                _logger.LogError("Data could not be retrieved");
+                _logger?.LogError("Data could not be retrieved");
                 throw new Exception($"Failed to retrieve data for {memberName}");
             }
 
-            _logger.LogTrace("HTTP request completed successfully");
+            _logger?.LogTrace("HTTP request completed successfully");
 
             return result;
         }

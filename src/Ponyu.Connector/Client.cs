@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
 using Ponyu.Connector.Responses;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Reflection;
@@ -60,18 +61,37 @@ namespace Ponyu.Connector
             [System.Runtime.CompilerServices.CallerMemberName] string memberName = ""
         )
         {
-            _logger?.LogDebug("Performing HTTP request to {0}", fullUri);
+            _logger?.LogDebug($"Performing {memberName} HTTP request to {fullUri}");
 
-            var result = await _http.GetFromJsonAsync<T>(fullUri, cancellationToken);
-            if (result == null)
+            var response = await _http.GetAsync(fullUri, cancellationToken);
+            if(response.StatusCode == HttpStatusCode.BadRequest)
             {
-                _logger?.LogError("Data could not be retrieved");
-                throw new Exception($"Failed to retrieve data for {memberName}");
+                var badRequestMessage = await response.Content.ReadFromJsonAsync<ErrorMessageResponse>();
+                _logger?.LogError("PonyU bad request ({0})", badRequestMessage?.Message);
+                throw new ServiceException($"Bad request ({badRequestMessage?.Message ?? "unknown error"})");
+            }
+            else if(response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                _logger?.LogError("PonyU unauthorized request");
+                throw new ServiceException($"Unauthorized request");
+            }
+            else if(response.StatusCode != HttpStatusCode.OK)
+            {
+                var errorMessage = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+                _logger?.LogError("PonyU request error, status {0}, error {1}, description {2}", response.StatusCode, errorMessage?.Error, errorMessage?.Description);
+                throw new ServiceException($"Unforeseen request error (status {response.StatusCode}, error {errorMessage?.Error ?? "unknown"}, {errorMessage?.Description ?? "no description"})");
             }
 
-            _logger?.LogTrace("HTTP request completed successfully");
+            var content = await response.Content.ReadFromJsonAsync<T>(options: null, cancellationToken: cancellationToken);
+            if(content == null)
+            {
+                _logger?.LogError("PonyU response failed to deserialize");
+                throw new ServiceException($"Unable to deserialize response");
+            }
 
-            return result;
+            _logger?.LogTrace($"{memberName} HTTP request completed successfully");
+
+            return content;
         }
     }
 }

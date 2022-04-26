@@ -55,6 +55,17 @@ namespace Ponyu.Connector
             return await PerformGetQuery<ZoneResponse[]>(uri, cancellationToken);
         }
 
+        public async Task<NextPickupResponse> GetNextPickupAsync(Coordinate coordinate, CancellationToken cancellationToken = default)
+        {
+            var q = new QueryBuilder()
+                .Add("latitude", coordinate.Latitude)
+                .Add("longitude", coordinate.Longitude);
+
+            var uri = $"v2/secured/next-available-pickup{q}";
+
+            return await PerformGetQuery<NextPickupResponse>(uri, cancellationToken);
+        }
+
         private async Task<T> PerformGetQuery<T>(
             string fullUri,
             CancellationToken cancellationToken,

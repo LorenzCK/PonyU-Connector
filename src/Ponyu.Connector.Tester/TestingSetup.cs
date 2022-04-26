@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using NUnit.Framework;
 
 namespace Ponyu.Connector.Tester
@@ -12,10 +11,8 @@ namespace Ponyu.Connector.Tester
         [OneTimeSetUp]
         public void Setup()
         {
-            var consoleLoggerProvider = new ConsoleLoggerProvider(
-                new OptionsMonitor<ConsoleLoggerOptions>(new ConsoleLoggerOptions())
-            );
-            var loggerFactory = new LoggerFactory(new ILoggerProvider[] { consoleLoggerProvider });
+            var testLoggerProvider = new TestLoggerProvider();
+            var loggerFactory = new LoggerFactory(new ILoggerProvider[] { testLoggerProvider });
 
             Client = new Client(new Settings(Environment.GetEnvironmentVariable("API_KEY"))
             {

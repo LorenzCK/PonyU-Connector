@@ -33,7 +33,7 @@ namespace Ponyu.Connector
             _http.BaseAddress = new Uri(_settings.BaseUrl ?? Settings.DefaultBaseUrl);
             _http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             _http.DefaultRequestHeaders.UserAgent.Add(
-                new ProductInfoHeaderValue("PonyUConnector", Assembly.GetExecutingAssembly().GetName().Version?.ToString()));
+                new ProductInfoHeaderValue("PonyU-connector-dotnet", Assembly.GetExecutingAssembly().GetName().Version?.ToString()));
             _http.DefaultRequestHeaders.Add("api_key", _settings.ApiKey);
             if (_settings.HttpTimeout.HasValue)
             {

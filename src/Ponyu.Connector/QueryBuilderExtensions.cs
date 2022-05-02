@@ -22,5 +22,11 @@ namespace Ponyu.Connector
             builder.Add(key, value.ToString(CultureInfo.InvariantCulture));
             return builder;
         }
+
+        public static QueryBuilder Add(this QueryBuilder builder, string key, DateOnly value)
+        {
+            builder.Add(key, value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            return builder;
+        }
     }
 }

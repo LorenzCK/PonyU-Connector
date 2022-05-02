@@ -92,6 +92,24 @@ namespace Ponyu.Connector
             return await PerformQuery<NewShipmentResponse>(HttpMethod.Post, "v2/secured/shipments", jsonPayload, cancellationToken);
         }
 
+        public async Task<DeliveryShiftResponse[]> GetDeliveryShifts(
+            DateOnly? localDay = null,
+            CancellationToken cancellationToken = default
+        )
+        {
+            if(!localDay.HasValue)
+            {
+                localDay = DateOnly.FromDateTime(DateTime.Now);
+            }
+
+            var q = new QueryBuilder()
+                .Add("date", localDay.Value);
+
+            var uri = $"secured/delivery-shifts{q}";
+
+            return await PerformQuery<DeliveryShiftResponse[]>(HttpMethod.Get, uri, null, cancellationToken);
+        }
+
         private async Task<T> PerformQuery<T>(
             HttpMethod method,
             string fullUri,

@@ -67,6 +67,31 @@ namespace Ponyu.Connector
             return await PerformQuery<NextPickupResponse>(HttpMethod.Get, uri, null, cancellationToken);
         }
 
+        public async Task<NewShipmentResponse> CreateShipment(
+            string orderId,
+            OrderInformation orderInformation,
+            ContactInformation senderInformation,
+            ContactInformation recipientInformation,
+            PaymentInformation paymentInformation,
+            long? internalOrderId = default,
+            IEnumerable<PackageInformation>? packages = default,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var payload = new CreateShipmentRequest {
+                CustomerOrderId = internalOrderId,
+                OrderId = orderId,
+                Order = orderInformation,
+                SenderInfo = senderInformation,
+                CustomerInfo = recipientInformation,
+                ShipmentPacks = (packages != null && packages.Any()) ? packages.ToArray() : null,
+                PaymentInfo = paymentInformation
+            };
+            var jsonPayload = JsonContent.Create(payload, mediaType: new MediaTypeHeaderValue("application/json"));
+
+            return await PerformQuery<NewShipmentResponse>(HttpMethod.Post, "v2/secured/shipments", jsonPayload, cancellationToken);
+        }
+
         private async Task<T> PerformQuery<T>(
             HttpMethod method,
             string fullUri,

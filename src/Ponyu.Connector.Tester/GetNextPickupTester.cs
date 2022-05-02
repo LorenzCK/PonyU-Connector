@@ -2,7 +2,7 @@
 
 namespace Ponyu.Connector.Tester
 {
-    internal class GetNextPickup
+    internal class GetNextPickupTester
     {
         [Test]
         public async Task RomeTest()

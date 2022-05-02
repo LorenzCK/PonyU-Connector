@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
+using Ponyu.Connector.Requests;
 using Ponyu.Connector.Responses;
 using System.Net;
 using System.Net.Http.Headers;
@@ -52,7 +53,7 @@ namespace Ponyu.Connector
 
             var uri = $"v2/secured/zones{q}";
 
-            return await PerformGetQuery<ZoneResponse[]>(uri, cancellationToken);
+            return await PerformQuery<ZoneResponse[]>(HttpMethod.Get, uri, null, cancellationToken);
         }
 
         public async Task<NextPickupResponse> GetNextPickupAsync(Coordinate coordinate, CancellationToken cancellationToken = default)
@@ -63,19 +64,34 @@ namespace Ponyu.Connector
 
             var uri = $"v2/secured/next-available-pickup{q}";
 
-            return await PerformGetQuery<NextPickupResponse>(uri, cancellationToken);
+            return await PerformQuery<NextPickupResponse>(HttpMethod.Get, uri, null, cancellationToken);
         }
 
-        private async Task<T> PerformGetQuery<T>(
+        private async Task<T> PerformQuery<T>(
+            HttpMethod method,
             string fullUri,
-            CancellationToken cancellationToken,
+            HttpContent? bodyContent = null,
+            CancellationToken cancellationToken = default,
             [System.Runtime.CompilerServices.CallerMemberName] string memberName = ""
         )
         {
-            _logger?.LogDebug($"Performing {memberName} HTTP request to {fullUri}");
+            _logger?.LogDebug($"{memberName} performing HTTP {method} request to {fullUri}");
 
-            var response = await _http.GetAsync(fullUri, cancellationToken);
-            if(response.StatusCode == HttpStatusCode.BadRequest)
+            var request = new HttpRequestMessage(method, fullUri);
+            if(bodyContent != null)
+            {
+                request.Content = bodyContent;
+
+                _logger?.LogTrace("Request body: {0}", await bodyContent.ReadAsStringAsync());
+            }
+
+            var response = await _http.SendAsync(request, cancellationToken);
+            if(response.Content != null)
+            {
+                _logger?.LogTrace("Response body: {0}", await response.Content.ReadAsStringAsync());
+            }
+
+            if (response.StatusCode == HttpStatusCode.BadRequest)
             {
                 var badRequestMessage = await response.Content.ReadFromJsonAsync<ErrorMessageResponse>();
                 _logger?.LogError("PonyU bad request ({0})", badRequestMessage?.Message);
@@ -86,7 +102,7 @@ namespace Ponyu.Connector
                 _logger?.LogError("PonyU unauthorized request");
                 throw new ServiceException($"Unauthorized request");
             }
-            else if(response.StatusCode != HttpStatusCode.OK)
+            else if(!response.IsSuccessStatusCode)
             {
                 var errorMessage = await response.Content.ReadFromJsonAsync<ErrorResponse>();
                 _logger?.LogError("PonyU request error, status {0}, error {1}, description {2}", response.StatusCode, errorMessage?.Error, errorMessage?.Description);
@@ -100,7 +116,7 @@ namespace Ponyu.Connector
                 throw new ServiceException($"Unable to deserialize response");
             }
 
-            _logger?.LogTrace($"{memberName} HTTP request completed successfully");
+            _logger?.LogTrace($"{memberName} HTTP {method} request completed successfully");
 
             return content;
         }

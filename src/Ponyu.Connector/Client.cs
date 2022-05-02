@@ -45,6 +45,9 @@ namespace Ponyu.Connector
             _logger?.LogInformation("PonyU connector initialized");
         }
 
+        /// <summary>
+        /// Retrieves the delivery zones associated to a geographic point.
+        /// </summary>
         public async Task<ZoneResponse[]> GetZonesAsync(Coordinate coordinate, CancellationToken cancellationToken = default)
         {
             var q = new QueryBuilder()
@@ -56,6 +59,9 @@ namespace Ponyu.Connector
             return await PerformQuery<ZoneResponse[]>(HttpMethod.Get, uri, null, cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves the next possible pick-up time for a geographic pick-up point.
+        /// </summary>
         public async Task<NextPickupResponse> GetNextPickupAsync(Coordinate coordinate, CancellationToken cancellationToken = default)
         {
             var q = new QueryBuilder()
@@ -67,6 +73,16 @@ namespace Ponyu.Connector
             return await PerformQuery<NextPickupResponse>(HttpMethod.Get, uri, null, cancellationToken);
         }
 
+        /// <summary>
+        /// Creates a new shipment.
+        /// </summary>
+        /// <param name="orderId">Order ID code.</param>
+        /// <param name="orderInformation">Order information.</param>
+        /// <param name="senderInformation">Sender contact information.</param>
+        /// <param name="recipientInformation">Recipient contact information.</param>
+        /// <param name="paymentInformation">Payment information.</param>
+        /// <param name="internalOrderId">Optional, internal order ID used by client.</param>
+        /// <param name="packages">Optional, list of packages.</param>
         public async Task<NewShipmentResponse> CreateShipment(
             string orderId,
             OrderInformation orderInformation,
@@ -92,6 +108,9 @@ namespace Ponyu.Connector
             return await PerformQuery<NewShipmentResponse>(HttpMethod.Post, "v2/secured/shipments", jsonPayload, cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves the list of available delivery shifts for a given local day.
+        /// </summary>
         public async Task<DeliveryShiftResponse[]> GetDeliveryShifts(
             DateOnly? localDay = null,
             CancellationToken cancellationToken = default

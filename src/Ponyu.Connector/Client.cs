@@ -142,6 +142,24 @@ namespace Ponyu.Connector
             return await PerformQuery<TrackingResponse>(HttpMethod.Get, uri, null, cancellationToken);
         }
 
+        /// <summary>
+        /// Cancels an existing shipment.
+        /// </summary>
+        public async Task CancelShipment(
+            string orderId,
+            CancellationToken cancellationToken = default
+        )
+        {
+            if(string.IsNullOrWhiteSpace(orderId))
+            {
+                throw new ArgumentException("Order ID cannot be null or empty", nameof(orderId));
+            }
+
+            var uri = $"secured/shipments/{orderId}/cancel";
+
+            await PerformQuery<CancelShipmentResponse>(HttpMethod.Put, uri, null, cancellationToken);
+        }
+
         private async Task<T> PerformQuery<T>(
             HttpMethod method,
             string fullUri,
@@ -179,7 +197,8 @@ namespace Ponyu.Connector
             }
             else if (!"application/json".Equals(response?.Content?.Headers.ContentType?.MediaType, StringComparison.InvariantCultureIgnoreCase))
             {
-                throw new ServiceException(string.Format("Received non JSON content ({0})", response?.Content?.Headers.ContentType?.MediaType));
+                _logger?.LogError("Received non-JSON content in response");
+                throw new ServiceException(string.Format("Received non-JSON content ({0})", response?.Content?.Headers.ContentType?.MediaType));
             }
             else if(!response.IsSuccessStatusCode)
             {

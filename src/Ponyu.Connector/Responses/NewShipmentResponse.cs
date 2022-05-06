@@ -1,5 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
 namespace Ponyu.Connector.Responses
 {
     public class NewShipmentResponse
@@ -10,23 +12,24 @@ namespace Ponyu.Connector.Responses
 
         public string OrderId { get; set; }
 
-        public string TrackingCode { get; set; }
+        public string? TrackingCode { get; set; }
 
         public long TimeStamp { get; set; }
 
         [JsonPropertyName("ConfirmedPickupDueDate")]
-        [JsonConverter(typeof(NonFractionalDateTimeOffsetConverter))]
         public DateTimeOffset PickupDueDate { get; set; }
 
         [JsonPropertyName("ConfirmedRequestedDeliveryRangeStartDate")]
-        [JsonConverter(typeof(NonFractionalDateTimeOffsetConverter))]
         public DateTimeOffset RequestedDeliveryRangeStartDate { get; set; }
 
         [JsonPropertyName("ConfirmedRequestedDeliveryRangeEndDate")]
-        [JsonConverter(typeof(NonFractionalDateTimeOffsetConverter))]
         public DateTimeOffset RequestedDeliveryRangeEndDate { get; set; }
 
-        [JsonConverter(typeof(NonFractionalDateTimeOffsetConverter))]
+        [JsonPropertyName("ConfirmedRequestedDeliveryDate")]
         public DateTimeOffset RequestedDeliveryDate { get; set; }
+
+        internal double Distance { get; set; }
     }
 }
+
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

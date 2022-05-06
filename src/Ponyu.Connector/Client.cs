@@ -129,6 +129,19 @@ namespace Ponyu.Connector
             return await PerformQuery<DeliveryShiftResponse[]>(HttpMethod.Get, uri, null, cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves tracking information about a shipment.
+        /// </summary>
+        public async Task<TrackingResponse> GetTrackingInformation(
+            string trackingCode,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var uri = $"v2/secured/tracking/{trackingCode}";
+
+            return await PerformQuery<TrackingResponse>(HttpMethod.Get, uri, null, cancellationToken);
+        }
+
         private async Task<T> PerformQuery<T>(
             HttpMethod method,
             string fullUri,

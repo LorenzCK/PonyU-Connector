@@ -177,6 +177,10 @@ namespace Ponyu.Connector
                 _logger?.LogError("PonyU unauthorized request");
                 throw new ServiceException($"Unauthorized request");
             }
+            else if (!"application/json".Equals(response?.Content?.Headers.ContentType?.MediaType, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new ServiceException(string.Format("Received non JSON content ({0})", response?.Content?.Headers.ContentType?.MediaType));
+            }
             else if(!response.IsSuccessStatusCode)
             {
                 var errorMessage = await response.Content.ReadFromJsonAsync<ErrorResponse>();

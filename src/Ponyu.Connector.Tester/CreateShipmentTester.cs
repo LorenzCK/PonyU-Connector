@@ -171,5 +171,57 @@ namespace Ponyu.Connector.Tester
                 );
             });
         }
+
+        [Test]
+        public async Task CreateSimpleAsapShipmentWithinRome()
+        {
+            var tzRome = TimeZoneInfo.FindSystemTimeZoneById("Europe/Rome");
+            var localTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tzRome);
+            var localTimeOffset = new DateTimeOffset(localTime, tzRome.GetUtcOffset(DateTime.UtcNow));
+
+            var rnd = new Random();
+            var orderId = rnd.Next(200, 300);
+
+            await TestingSetup.Client.CreateShipment(
+                $"CX{orderId}",
+                new Requests.OrderInformation
+                {
+                    Note = "Test ASAP order",
+                    PickupDueDate = localTimeOffset,
+                    RequestedDeliveryRangeStartDate = localTimeOffset.Add(TimeSpan.FromMinutes(5)),
+                    RequestedDeliveryRangeEndDate = localTimeOffset.Add(TimeSpan.FromMinutes(15)),
+                    DeliveryAsap = true,
+                },
+                new Requests.ContactInformation
+                {
+                    Name = "Mario Spedizionieri",
+                    PhoneNumber = "+393331234567",
+                    Address = "Piazza Antonio Meucci, 1A",
+                    City = "Roma",
+                    ProvinceCode = "RM",
+                    Country = "Italia",
+                    Postcode = "00146",
+                    AdditionalInformation = "Suonare al campanello",
+                },
+                new Requests.ContactInformation
+                {
+                    Name = "Luigi Mangioni",
+                    PhoneNumber = "+393341234567",
+                    Address = "Via Raffaello Giovagnoli, 35",
+                    City = "Roma",
+                    ProvinceCode = "RM",
+                    Country = "Italia",
+                    Postcode = "00152",
+                    AdditionalInformation = "Consegnare in portineria"
+                },
+                new Requests.PaymentInformation
+                {
+                    CashPaymentOnDelivery = false,
+                    DeliveryCharge = 2.9m,
+                    Total = 35.9m,
+                },
+                orderId
+            );
+        }
     }
 }

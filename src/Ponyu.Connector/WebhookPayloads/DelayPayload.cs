@@ -11,22 +11,22 @@ namespace Ponyu.Connector.WebhookPayloads
         public string OrderId { get; set; }
 
         [JsonPropertyName("pickupDueDate")]
-        public DateTimeOffset pickupDueDate { get; set; }
+        public DateTimeOffset PickupDueDate { get; set; }
 
         [JsonPropertyName("pickupDueDateRangeStart")]
-        public DateTimeOffset pickupDueDateRangeStart { get; set; }
+        public DateTimeOffset PickupDueDateRangeStart { get; set; }
 
         [JsonPropertyName("pickupDueDateRangeEnd")]
-        public DateTimeOffset pickupDueDateRangeEnd { get; set; }
+        public DateTimeOffset PickupDueDateRangeEnd { get; set; }
 
         [JsonPropertyName("requestedDeliveryDate")]
-        public DateTimeOffset requestedDeliveryDate { get; set; }
+        public DateTimeOffset RequestedDeliveryDate { get; set; }
 
         [JsonPropertyName("requestedDeliveryDateRangeStart")]
-        public DateTimeOffset requestedDeliveryDateRangeStart { get; set; }
+        public DateTimeOffset RequestedDeliveryDateRangeStart { get; set; }
 
         [JsonPropertyName("requestedDeliveryDateRangeEnd")]
-        public DateTimeOffset requestedDeliveryDateRangeEnd { get; set; }
+        public DateTimeOffset RequestedDeliveryDateRangeEnd { get; set; }
 
         [JsonPropertyName("operationDate")]
         public DateTimeOffset Timestamp { get; set; }

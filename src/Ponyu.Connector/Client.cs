@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http.Extensions;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
 using Ponyu.Connector.Requests;
 using Ponyu.Connector.Responses;
+using Ponyu.Connector.WebhookPayloads;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -250,6 +252,64 @@ namespace Ponyu.Connector
             _logger?.LogTrace($"{memberName} HTTP {method} request completed successfully");
 
             return content;
+        }
+
+        /// <summary>
+        /// Processes a webhook and returns the payload.
+        /// </summary>
+        /// <param name="incomingContent">Incoming HTTP content.</param>
+        /// <returns>
+        /// Returns either <see cref="StateChangePayload"/> or <see cref="DelayPayload"/>, depending
+        /// on the kind of webhook that has been received.
+        /// May also return null if the webhook cannot be processed correctly.
+        /// </returns>
+        public static async Task<Either<StateChangePayload, DelayPayload>?> ProcessWebhook(HttpRequest incomingRequest, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var content = await JsonSerializer.DeserializeAsync<CommonPayload>(incomingRequest.Body, cancellationToken: cancellationToken);
+                if (content == null)
+                {
+                    return null;
+                }
+
+                if (content.Status.HasValue)
+                {
+                    // This is a StateChangePayload
+                    return new Either<StateChangePayload, DelayPayload>(new StateChangePayload
+                    {
+                        InternalOrderId = content.InternalOrderId,
+                        OrderId = content.OrderId,
+                        Status = content.Status.Value,
+                        Timestamp = content.Timestamp,
+                    });
+                }
+                else if(content.PickupDueDate.HasValue)
+                {
+                    // This must be a DelayPayload
+                    return new Either<StateChangePayload, DelayPayload>(new DelayPayload
+                    {
+                        InternalOrderId = content.InternalOrderId,
+                        OrderId = content.OrderId,
+                        PickupDueDate = content.PickupDueDate.Value,
+                        PickupDueDateRangeStart = content.PickupDueDateRangeStart.GetValueOrDefault(),
+                        PickupDueDateRangeEnd = content.PickupDueDateRangeEnd.GetValueOrDefault(),
+                        RequestedDeliveryDate = content.RequestedDeliveryDate.GetValueOrDefault(),
+                        RequestedDeliveryDateRangeStart = content.RequestedDeliveryDateRangeStart.GetValueOrDefault(),
+                        RequestedDeliveryDateRangeEnd = content.RequestedDeliveryDateRangeEnd.GetValueOrDefault(),
+                        Timestamp = content.Timestamp,
+                    });
+                }
+                else
+                {
+                    // Something is missing
+                    return null;
+                }
+            }
+            catch(JsonException)
+            {
+                return null;
+            }
         }
     }
 }

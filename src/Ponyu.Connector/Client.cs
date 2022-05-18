@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Reflection;
+using System.Text.Json;
 
 namespace Ponyu.Connector
 {
@@ -124,7 +125,7 @@ namespace Ponyu.Connector
             };
             var jsonPayload = JsonContent.Create(payload, mediaType: new MediaTypeHeaderValue("application/json"));
 
-            return await PerformQuery<NewShipmentResponse>(HttpMethod.Post, "v2/secured/shipments", jsonPayload, cancellationToken);
+            return await PerformQuery<NewShipmentResponse>(HttpMethod.Post, "v3/secured/shipments", jsonPayload, cancellationToken);
         }
 
         /// <summary>
@@ -205,9 +206,22 @@ namespace Ponyu.Connector
 
             if (response.StatusCode == HttpStatusCode.BadRequest)
             {
-                var badRequestMessage = await response.Content.ReadFromJsonAsync<ErrorMessageResponse>();
-                _logger?.LogError("PonyU bad request ({0})", badRequestMessage?.Message);
-                throw new ServiceException($"Bad request ({badRequestMessage?.Message ?? "unknown error"})");
+                Exception finalException;
+                try
+                {
+                    var badRequestMessage = await response.Content.ReadFromJsonAsync<ErrorMessageResponse>();
+                    string compoundErrorMessage = string.Format("{0}: {1}", badRequestMessage?.Message ?? "unknown error",
+                        string.Join(", ", from err in badRequestMessage.Errors select err.Code));
+
+                    _logger?.LogError("PonyU bad request ({0})", compoundErrorMessage);
+                    finalException = new ServiceException($"Bad request ({compoundErrorMessage})");
+                }
+                catch(JsonException)
+                {
+                    _logger?.LogError("PonyU bad request");
+                    finalException = new ServiceException($"Bad request (unknown error)");
+                }
+                throw finalException;
             }
             else if(response.StatusCode == HttpStatusCode.Unauthorized)
             {

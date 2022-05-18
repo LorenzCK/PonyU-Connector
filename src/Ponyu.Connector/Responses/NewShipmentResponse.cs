@@ -16,19 +16,19 @@ namespace Ponyu.Connector.Responses
 
         public long TimeStamp { get; set; }
 
-        [JsonPropertyName("ConfirmedPickupDueDate")]
+        [JsonPropertyName("confirmedPickupDueDate")]
         public DateTimeOffset PickupDueDate { get; set; }
 
-        [JsonPropertyName("ConfirmedRequestedDeliveryRangeStartDate")]
+        [JsonPropertyName("confirmedRequestedDeliveryRangeStartDate")]
         public DateTimeOffset RequestedDeliveryRangeStartDate { get; set; }
 
-        [JsonPropertyName("ConfirmedRequestedDeliveryRangeEndDate")]
+        [JsonPropertyName("confirmedRequestedDeliveryRangeEndDate")]
         public DateTimeOffset RequestedDeliveryRangeEndDate { get; set; }
 
-        [JsonPropertyName("ConfirmedRequestedDeliveryDate")]
+        [JsonPropertyName("confirmedRequestedDeliveryDate")]
         public DateTimeOffset RequestedDeliveryDate { get; set; }
 
-        internal double Distance { get; set; }
+        public double Distance { get; set; }
     }
 }
 

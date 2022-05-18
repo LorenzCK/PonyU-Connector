@@ -8,7 +8,7 @@ namespace Ponyu.Connector.Responses
 
         public long CustomerOrderId { get; set; }
 
-        [JsonConverter(typeof(JsonStringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumMemberConverter))]
         public ShipmentStatus ShipmentStatus { get; set; }
 
         [JsonConverter(typeof(WonkyDateTimeOffsetConverter))]

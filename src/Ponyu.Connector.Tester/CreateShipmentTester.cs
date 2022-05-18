@@ -62,6 +62,8 @@ namespace Ponyu.Connector.Tester
             var localTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tzRome);
             var localTimeOffset = new DateTimeOffset(localTime, tzRome.GetUtcOffset(DateTime.UtcNow));
 
+            var pickupTime = localTimeOffset.AddHours(22);
+
             var rnd = new Random();
             var orderId = rnd.Next(100, 200);
             var orderCode = $"CX{orderId}";
@@ -71,9 +73,9 @@ namespace Ponyu.Connector.Tester
                 new Requests.OrderInformation
                 {
                     Note = "Test order",
-                    PickupDueDate = localTimeOffset.Add(TimeSpan.FromHours(4)),
-                    RequestedDeliveryRangeStartDate = localTimeOffset.Add(TimeSpan.FromHours(4)).AddMinutes(10),
-                    RequestedDeliveryRangeEndDate = localTimeOffset.Add(TimeSpan.FromHours(5)),
+                    PickupDueDate = pickupTime,
+                    RequestedDeliveryRangeStartDate = pickupTime.AddMinutes(10),
+                    RequestedDeliveryRangeEndDate = pickupTime.AddMinutes(20),
                 },
                 new Requests.ContactInformation
                 {
@@ -216,6 +218,15 @@ namespace Ponyu.Connector.Tester
                 },
                 orderId
             );
+        }
+
+        [Test]
+        public async Task TestShipmentTracking()
+        {
+            var tracking = await TestingSetup.Client.GetTrackingInformation("CHQ8SUD7");
+            Assert.AreEqual("FT4622", tracking.OrderId);
+            Assert.AreEqual("CHQ8SUD7", tracking.TrackingCode);
+            Assert.AreEqual(ShipmentStatus.Completed, tracking.ShipmentStatus);
         }
     }
 }

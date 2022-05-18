@@ -14,7 +14,7 @@ namespace Ponyu.Connector.Responses
 
         public string? TrackingCode { get; set; }
 
-        public long TimeStamp { get; set; }
+        public DateTimeOffset TimeStamp { get; set; }
 
         [JsonPropertyName("confirmedPickupDueDate")]
         public DateTimeOffset PickupDueDate { get; set; }

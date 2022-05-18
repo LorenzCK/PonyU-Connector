@@ -1,9 +1,4 @@
 ﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ponyu.Connector.Tester
 {
@@ -30,7 +25,7 @@ namespace Ponyu.Connector.Tester
                 },
                 new Requests.ContactInformation
                 {
-                    Name = "Mario Spedizionieri",
+                    Name = "Mario Rossi",
                     PhoneNumber = "+393331234567",
                     Address = "Piazza Antonio Meucci, 1A",
                     City = "Roma",
@@ -41,7 +36,7 @@ namespace Ponyu.Connector.Tester
                 },
                 new Requests.ContactInformation
                 {
-                    Name = "Luigi Mangioni",
+                    Name = "Luigi Verdi",
                     PhoneNumber = "+393341234567",
                     Address = "Via Raffaello Giovagnoli, 35",
                     City = "Roma",

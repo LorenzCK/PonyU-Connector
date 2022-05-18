@@ -1,5 +1,7 @@
 ﻿using NUnit.Framework;
 
+#pragma warning disable CS0612 // Type or member is obsolete
+
 namespace Ponyu.Connector.Tester
 {
     internal class GetNextPickupTester
@@ -11,14 +13,17 @@ namespace Ponyu.Connector.Tester
             var localTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tzRome);
             var localTimeOffset = new DateTimeOffset(localTime, tzRome.GetUtcOffset(DateTime.UtcNow));
 
-            var vaticanCity = await TestingSetup.Client.GetNextPickupAsync(new Coordinate(41.902108, 12.457250));
-            Assert.AreEqual("Roma", vaticanCity.ZoneName);
-            Assert.GreaterOrEqual(vaticanCity.NextPickup, localTimeOffset);
+            var sanLorenzoResult = await TestingSetup.Client.GetNextPickupAsync(Coordinates.SanLorenzoRoma);
+            Assert.AreEqual("Roma", sanLorenzoResult.ZoneName);
+            Assert.GreaterOrEqual(sanLorenzoResult.NextPickup, localTimeOffset);
 
             Assert.ThrowsAsync<ServiceException>(async () =>
             {
-                await TestingSetup.Client.GetNextPickupAsync(new Coordinate(41.809623, 12.682193));
+                await TestingSetup.Client.GetNextPickupAsync(Coordinates.Frascati);
             });
         }
     }
 }
+
+#pragma warning restore CS0612 // Type or member is obsolete
+

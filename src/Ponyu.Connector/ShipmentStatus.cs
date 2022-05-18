@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Ponyu.Connector.Responses
+namespace Ponyu.Connector
 {
     public enum ShipmentStatus
     {

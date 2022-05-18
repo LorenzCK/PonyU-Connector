@@ -1,5 +1,4 @@
 ﻿using NUnit.Framework;
-using Ponyu.Connector.Responses;
 
 namespace Ponyu.Connector.Tester
 {

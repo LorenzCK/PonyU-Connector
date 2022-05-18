@@ -88,7 +88,7 @@ namespace Ponyu.Connector
                 q.Add("date", day.Value.ToString("yyyy-MM-dd"));
             }
 
-            var uri = $"v1/secured/next-available-delvery-slots{q}";
+            var uri = $"v1/secured/next-available-delivery-slots{q}";
 
             return await PerformQuery<NextPickupSlotsResponse>(HttpMethod.Get, uri, null, cancellationToken);
         }

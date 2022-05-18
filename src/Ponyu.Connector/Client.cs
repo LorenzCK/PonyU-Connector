@@ -62,6 +62,7 @@ namespace Ponyu.Connector
         /// <summary>
         /// Retrieves the next possible pick-up time for a geographic pick-up point.
         /// </summary>
+        [Obsolete]
         public async Task<NextPickupResponse> GetNextPickupAsync(Coordinate coordinate, CancellationToken cancellationToken = default)
         {
             var q = new QueryBuilder()
@@ -71,6 +72,24 @@ namespace Ponyu.Connector
             var uri = $"v2/secured/next-available-pickup{q}";
 
             return await PerformQuery<NextPickupResponse>(HttpMethod.Get, uri, null, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves the next possible pick-up time slots for a geographic pick-up point.
+        /// </summary>
+        public async Task<NextPickupSlotsResponse> GetNextPickupSlotsAsync(Coordinate coordinate, DateOnly? day = null, CancellationToken cancellationToken = default)
+        {
+            var q = new QueryBuilder()
+                .Add("latitude", coordinate.Latitude)
+                .Add("longitude", coordinate.Longitude);
+            if(day.HasValue)
+            {
+                q.Add("date", day.Value.ToString("yyyy-MM-dd"));
+            }
+
+            var uri = $"v1/secured/next-available-delvery-slots{q}";
+
+            return await PerformQuery<NextPickupSlotsResponse>(HttpMethod.Get, uri, null, cancellationToken);
         }
 
         /// <summary>
